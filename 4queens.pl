@@ -2,52 +2,48 @@ four_queens(Solution):-
     % initialize population
     random_permutation([1, 2, 3, 4], Configuration1),
     random_permutation([1, 2, 3, 4], Configuration2),
-    % apply genetic algorithm
-    genetic_algorithm(Configuration1, Configuration2, Solution, _), !.
-
-genetic_algorithm([], [], Solution, Solution).
-genetic_algorithm(Configuration1, Configuration2, Aux, Solution) :-
     (
-         % if Configuration1 is safe then, the solution is Configuration1
-         safe(Configuration1), valid(Configuration1) -> genetic_algorithm([], [], Aux, Configuration1);
-         % else if Configuration2 is safe, then the solution is Configuration2
-         safe(Configuration2), valid(Configuration2) -> genetic_algorithm([], [], Aux, Configuration2);
-         % else
-         (
-               % make crossover step (generate TmpConfiguration crossing Configuration1 and Configuration2):
-               uniform_crossover(Configuration1, Configuration2, TmpConfiguration),
-               % make mutation step (generate Configuration3 mutating TmpConfiguration):
-               mutation(TmpConfiguration, Configuration3),
-               (
-                   % if Configuration3 is safe and valid, then the solution is Configuration3
-                   safe(Configuration3), valid(Configuration3) -> genetic_algorithm([], [], Aux, Configuration3);
-                   % else compute the fitness value associated with Configuration1, Configuration2, Configuration3,
-                   safe_queens(Configuration1, FitnessValue1),
-                   safe_queens(Configuration2, FitnessValue2),
-                   safe_queens(Configuration3, FitnessValue3),
-                   % and make the selection step:
-                   (
-                        % if the fitness value associated with Configuration1
-                        % is >= of the fitness value associated with Configuration2
-                        % (Configuration1 is better than Configuration2), then
-                        FitnessValue1 >= FitnessValue2 ->
-                        (
-                             % if the fitness value associated with Configuration2
-                             % is >= of the fitness value associated with Configuration3
-                             % (Configuration2 is better than Configuration3), then continue recursion on Configuration1 and Configuration2
-                             FitnessValue2 >= FitnessValue3 -> genetic_algorithm(Configuration1, Configuration2, Aux, _);
-                             % else (Configuration3 is better than Configuration2) continue recursion on Configuration1 and Configuration3
-                             genetic_algorithm(Configuration1, Configuration3, Aux, _)
-                        );
-                   % else if the fitness value associated with Configuration1
-                   % is >= of the fitness value associated with Configuration3
-                   % (Configuration1 is better than Configuration3), then continue recursion on Configuration1 and Configuration2
-                   FitnessValue1 >= FitnessValue3 ->  genetic_algorithm(Configuration1, Configuration2, Aux, _);
-                   % else (Configuration3 is better than Configuration1), continue recursion on Configuration2 and Configuration3
-                   genetic_algorithm(Configuration2, Configuration3, Aux, _)
-                   )
-              )
-         )
+        % if Configuration1 is safe then, the solution is Configuration1
+        safe(Configuration1) -> append(Configuration1, [], Solution), !;
+        % else if Configuration2 is safe, then the solution is Configuration2
+        safe(Configuration2) -> append(Configuration2, [], Solution), !;
+        % else apply genetic algorithm
+        genetic_algorithm(Configuration1, Configuration2, Solution), !
+    ).
+
+genetic_algorithm(Configuration1, Configuration2, Solution) :-
+    % make crossover step (generate TmpConfiguration crossing Configuration1 and Configuration2):
+    uniform_crossover(Configuration1, Configuration2, TmpConfiguration),
+    % make mutation step (generate Configuration3 mutating TmpConfiguration):
+    mutation(TmpConfiguration, Configuration3),
+    (
+        % if Configuration3 is safe and valid, then the solution is Configuration3
+        safe(Configuration3), valid(Configuration3) -> append(Configuration3, [], Solution);
+        % else compute the fitness value associated with Configuration1, Configuration2, Configuration3,
+        safe_queens(Configuration1, FitnessValue1),
+        safe_queens(Configuration2, FitnessValue2),
+        safe_queens(Configuration3, FitnessValue3),
+        % and make the selection step:
+        (
+            % if the fitness value associated with Configuration1
+            % is >= of the fitness value associated with Configuration2
+            % (Configuration1 is better than Configuration2), then
+            FitnessValue1 >= FitnessValue2 ->
+            (
+                % if the fitness value associated with Configuration2
+                % is >= of the fitness value associated with Configuration3
+                % (Configuration2 is better than Configuration3), then continue recursion on Configuration1 and Configuration2
+                FitnessValue2 >= FitnessValue3 -> genetic_algorithm(Configuration1, Configuration2, Solution);
+                % else (Configuration3 is better than Configuration2) continue recursion on Configuration1 and Configuration3
+                genetic_algorithm(Configuration1, Configuration3, Solution)
+            );
+            % else if the fitness value associated with Configuration1
+            % is >= of the fitness value associated with Configuration3
+            % (Configuration1 is better than Configuration3), then continue recursion on Configuration1 and Configuration2
+            FitnessValue1 >= FitnessValue3 ->  genetic_algorithm(Configuration1, Configuration2, Solution);
+            % else (Configuration3 is better than Configuration1), continue recursion on Configuration2 and Configuration3
+            genetic_algorithm(Configuration2, Configuration3, Solution)
+        )
     ).
 
 % one-point crossover (deterministic, crossover point is in the middle)
