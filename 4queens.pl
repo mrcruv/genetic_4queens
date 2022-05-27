@@ -1,4 +1,4 @@
-four_queens(Solution):-
+four_queens(Solution) :-
     % initialize population
     random_permutation([1, 2, 3, 4], Configuration1),
     random_permutation([1, 2, 3, 4], Configuration2),
@@ -47,13 +47,13 @@ genetic_algorithm(Configuration1, Configuration2, Solution) :-
     ).
 
 % one-point crossover (deterministic, crossover point is in the middle)
-one_point_crossover([A, B, C, D], [E, F, G, H], [A, B, G, H]).
+one_point_crossover([A, B, _, _], [_, _, G, H], [A, B, G, H]).
 
 % two-point crossover (deterministic)
-two_point_crossover([A, B, C, D], [E, F, G, H], [A, F, G, D]).
+two_point_crossover([A, _, _, D], [_, F, G, _], [A, F, G, D]).
 
-% four-point crossover (deterministic)
-four_point_crossover([A, B, C, D], [E, F, G, H], [A, F, C, H]).
+% three-point crossover (deterministic)
+three_point_crossover([A, _, C, _], [_, F, _, H], [A, F, C, H]).
 
 % uniform crossover (stochastic)
 uniform_crossover([], [], []).
